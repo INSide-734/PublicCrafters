@@ -11,12 +11,12 @@ import org.bukkit.inventory.ItemStack;
 import io.github.bananapuncher714.crafters.PublicCrafters;
 import io.github.bananapuncher714.crafters.events.CraftDisplayDestroyEvent;
 import io.github.bananapuncher714.crafters.events.CraftDisplayUpdateEvent;
-import io.github.bananapuncher714.crafters.events.ItemResultDisplayCreateEvent;
-import io.github.bananapuncher714.crafters.events.ItemResultDisplayDestroyEvent;
-import io.github.bananapuncher714.crafters.events.ItemResultDisplayEvent;
 import io.github.bananapuncher714.crafters.events.ItemDisplayCreateEvent;
 import io.github.bananapuncher714.crafters.events.ItemDisplayDestroyEvent;
 import io.github.bananapuncher714.crafters.implementation.api.PublicCraftingInventory;
+import io.github.bananapuncher714.crafters.events.ItemDisplayEvent;
+import io.github.bananapuncher714.crafters.events.ItemResultDisplayCreateEvent;
+import io.github.bananapuncher714.crafters.events.ItemResultDisplayDestroyEvent;
 
 /**
  * This is a per-inventory object, it manages all the 9 slots of a crafting table;
@@ -25,8 +25,8 @@ import io.github.bananapuncher714.crafters.implementation.api.PublicCraftingInve
  * @author BananaPuncher714
  */
 public class CraftDisplay {
-	protected final List< ItemDisplay > displays = new ArrayList< ItemDisplay >();
-	protected CraftResultDisplay resultDisplay;
+	protected final List< AbstractItemDisplay > displays = new ArrayList< AbstractItemDisplay >();
+	protected AbstractItemDisplay resultDisplay;
 	protected final Location blockLoc;
 	protected final PublicCraftingInventory inventory;
 	protected double height;
@@ -151,7 +151,7 @@ public class CraftDisplay {
 				return;
 			}
 			
-			resultDisplay = createEvent.getDisplay();
+			resultDisplay = createEvent.getItemDisplay();
 			resultDisplay.init();
 		}
 	}
@@ -170,7 +170,7 @@ public class CraftDisplay {
 		List< ItemStack > bukkitItems = inventory.getBukkitItems();
 		int index = col + 3 * row;
 		ItemStack item = bukkitItems.get( index );
-		ItemDisplay display = displays.get( index );
+		AbstractItemDisplay display = displays.get( index );
 		if ( display != null && ( display.getItem().getType() == Material.AIR || item.getType() == Material.AIR ) ) {
 			ItemDisplayDestroyEvent event = new ItemDisplayDestroyEvent( display );
 			Bukkit.getPluginManager().callEvent( event );
@@ -211,7 +211,7 @@ public class CraftDisplay {
 	 */
 	public void stop() {
 		Bukkit.getPluginManager().callEvent( new CraftDisplayDestroyEvent( this ) );
-		for ( ItemDisplay display : displays ) {
+		for ( AbstractItemDisplay display : displays ) {
 			if ( display != null ) {
 				ItemDisplayDestroyEvent event = new ItemDisplayDestroyEvent( display );
 				Bukkit.getPluginManager().callEvent( event );
@@ -228,7 +228,7 @@ public class CraftDisplay {
 		return inventory;
 	}
 	
-	public List< ItemDisplay > getItemDisplays() {
+	public List< AbstractItemDisplay > getItemDisplays() {
 		return displays;
 	}
 	

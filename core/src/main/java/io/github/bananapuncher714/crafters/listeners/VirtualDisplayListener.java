@@ -8,17 +8,16 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import io.github.bananapuncher714.crafters.PublicCrafters;
-import io.github.bananapuncher714.crafters.display.CraftResultDisplay;
-import io.github.bananapuncher714.crafters.display.ItemDisplay;
+import io.github.bananapuncher714.crafters.display.AbstractItemDisplay;
 import io.github.bananapuncher714.crafters.display.VirtualCraftResultDisplay;
 import io.github.bananapuncher714.crafters.display.VirtualItemDisplay;
-import io.github.bananapuncher714.crafters.events.ItemResultDisplayCreateEvent;
 import io.github.bananapuncher714.crafters.events.ItemDisplayCreateEvent;
+import io.github.bananapuncher714.crafters.events.ItemResultDisplayCreateEvent;
 
-public class PlayerListener implements Listener {
+public class VirtualDisplayListener implements Listener {
 	private final PublicCrafters plugin;
 	
-	public PlayerListener( PublicCrafters plugin ) {
+	public VirtualDisplayListener( PublicCrafters plugin ) {
 		this.plugin = plugin;
 	}
 	
@@ -60,7 +59,7 @@ public class PlayerListener implements Listener {
 		if ( !plugin.isVirtual() ) {
 			return;
 		}
-		AbstractItemDisplay display = event.getDisplay();
+		AbstractItemDisplay display = event.getItemDisplay();
 		VirtualCraftResultDisplay vDisplay = new VirtualCraftResultDisplay( display.getCraftDisplay(), display.getLocation(), display.getItem() );
 		event.setCraftResultDisplay( vDisplay );
 	}

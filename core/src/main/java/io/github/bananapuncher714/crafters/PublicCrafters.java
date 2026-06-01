@@ -31,10 +31,9 @@ import io.github.bananapuncher714.crafters.implementation.api.CraftInventoryMana
 import io.github.bananapuncher714.crafters.listeners.ChunkListener;
 import io.github.bananapuncher714.crafters.listeners.CraftBlockListener;
 import io.github.bananapuncher714.crafters.listeners.InventoryOpenListener;
-import io.github.bananapuncher714.crafters.listeners.PlayerListener;
+import io.github.bananapuncher714.crafters.listeners.VirtualDisplayListener;
 import io.github.bananapuncher714.crafters.util.ContainerManagerLoader;
 import io.github.bananapuncher714.crafters.util.Utils;
-
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import io.github.bananapuncher714.nbteditor.NBTEditor.MinecraftVersion;
 
@@ -192,8 +191,12 @@ public class PublicCrafters extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents( new InventoryOpenListener( this ), this );
 		Bukkit.getPluginManager().registerEvents( new CraftBlockListener( this ), this );
 		Bukkit.getPluginManager().registerEvents( new ChunkListener( manager, this ), this );
-		Bukkit.getPluginManager().registerEvents( new PlayerListener( this ), this );
-//		Bukkit.getPluginManager().registerEvents( new CraftingListener(), this );
+		
+		// Unsupported on 26.1+
+	    if ( NBTEditor.getMinecraftVersion().lessThanOrEqualTo( MinecraftVersion.v1_21_R7 ) ) {
+	        Bukkit.getPluginManager().registerEvents( new VirtualDisplayListener( this ), this );
+	    }
+
 //		cake = new CakeListener();
 //		Bukkit.getPluginManager().registerEvents( cake, this );
 	}
@@ -315,7 +318,7 @@ public class PublicCrafters extends JavaPlugin {
 	}
 
 	public boolean isVirtual() {
-		return virtual && !NBTEditor.getMinecraftVersion().greaterThanOrEqualTo( MinecraftVersion.v26_1 );
+		return virtual;
 	}
 	
 	public boolean isShowResult() {

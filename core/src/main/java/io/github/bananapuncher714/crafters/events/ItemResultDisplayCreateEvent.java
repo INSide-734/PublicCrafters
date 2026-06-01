@@ -21,7 +21,7 @@ public class ItemResultDisplayCreateEvent extends ItemDisplayEvent implements Ca
 	}
 	
 	public void setCraftResultDisplay( AbstractItemDisplay display ) {
-		this.display = display;
+		this.item = display;
 	}
 
 	@Override

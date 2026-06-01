@@ -4,8 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import io.github.bananapuncher714.crafters.display.AbstractItemDisplay;
 import io.github.bananapuncher714.crafters.display.CraftDisplay;
-import io.github.bananapuncher714.crafters.display.ItemDisplay;
 import io.github.bananapuncher714.crafters.events.CraftDisplayUpdateEvent;
 import io.github.bananapuncher714.crafters.events.ItemDisplayCreateEvent;
 import io.github.bananapuncher714.crafters.example.objects.CustomItemDisplay;
@@ -20,7 +20,7 @@ public class CraftingListener implements Listener {
 	
 	@EventHandler
 	public void onItemDisplayCreateEvent( ItemDisplayCreateEvent event ) {
-		ItemDisplay display = event.getItemDisplay();
+	    AbstractItemDisplay display = event.getItemDisplay();
 		if ( display.getSlot() != 4 ) {
 			return;
 		}
@@ -35,7 +35,7 @@ public class CraftingListener implements Listener {
 	@EventHandler
 	public void onCraftDisplayUpdateEvent( CraftDisplayUpdateEvent event ) {
 		CraftDisplay craftDisplay = event.getDisplay();
-		ItemDisplay display = craftDisplay.getItemDisplays().get( 4 );
+		AbstractItemDisplay display = craftDisplay.getItemDisplays().get( 4 );
 		if ( display == null ) {
 			return;
 		}

@@ -15,10 +15,8 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import io.github.bananapuncher714.crafters.PublicCrafters;
-import io.github.bananapuncher714.crafters.util.ContainerManagerLoader;
 import io.github.bananapuncher714.crafters.util.Utils;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
-import io.github.bananapuncher714.nbteditor.NBTEditor.MinecraftVersion;
 
 /**
  * The basic unit that is responsible for managing the items that appear on the crafting table
@@ -73,7 +71,7 @@ public class ItemDisplay extends AbstractItemDisplay {
 	 */
 	@Override
 	public void init() {
-		ArmorStand itemDisplay = getModelStand( location );
+		ArmorStand itemDisplay = getModelStand( getLocation() );
 		itemDisplay.setItemInHand( getItem() );
 		
 		itemDisplay.setRightArmPose( handPose );
@@ -143,7 +141,7 @@ public class ItemDisplay extends AbstractItemDisplay {
 		return model;
 	}
 
-	protected Location getOffsetLocation( Location location, ItemStack item ) {
+	protected static Location getOffsetLocation( Location location, ItemStack item ) {
 		Location loc = location.clone();
 		Vector vector = PublicCrafters.getInstance().getOffsetForMaterial( item.getType() );
 		if ( vector != null ) {

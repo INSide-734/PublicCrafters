@@ -29,13 +29,13 @@ import io.netty.util.internal.ThreadLocalRandom;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.SimpleMenuProvider;
@@ -65,6 +65,8 @@ public class ContainerManager_v26_1 implements CraftInventoryManager {
 		};
 		
 		mockPlayer.getBukkitEntity().setOp( true );
+		
+		Bukkit.getPluginManager().registerEvents( new VirtualDisplayListener( PublicCrafters.getInstance() ), PublicCrafters.getInstance() );
 	}
 	
 	protected CustomInventoryCrafting put( Location loc, CustomInventoryCrafting cont ) {
