@@ -48,7 +48,7 @@ public class VirtualDisplayListener implements Listener {
         }
         
         AbstractItemDisplay display = event.getItemDisplay();
-        ModernVirtualItemDisplay vDisplay = new ModernVirtualItemDisplay( display.getCraftDisplay(), display.getLocation(), display.getItem(), display.getSlot() );
+        ModernVirtualItemDisplay vDisplay = new ModernVirtualItemDisplay( display.getCraftDisplay(), display.getItem(), PublicCrafters.getInstance().getHeight(), display.getSlot() );
         event.setItemDisplay( vDisplay );
     }
     
@@ -58,7 +58,7 @@ public class VirtualDisplayListener implements Listener {
             return;
         }
         AbstractItemDisplay display = event.getItemDisplay();
-        ModernVirtualResultDisplay vDisplay = new ModernVirtualResultDisplay( display.getCraftDisplay(), display.getLocation(), display.getItem() );
+        ModernVirtualResultDisplay vDisplay = new ModernVirtualResultDisplay( display.getCraftDisplay(), display.getItem(), PublicCrafters.getInstance().getResultHeight() );
         event.setCraftResultDisplay( vDisplay );
     }
 }

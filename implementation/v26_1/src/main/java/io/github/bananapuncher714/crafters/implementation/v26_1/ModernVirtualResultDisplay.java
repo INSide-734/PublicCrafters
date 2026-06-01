@@ -27,22 +27,28 @@ public class ModernVirtualResultDisplay extends AbstractItemDisplay {
     private static Map< Location, ItemEntity > items = new HashMap< Location, ItemEntity >();
     private static Map< Location, Entity > bases = new HashMap< Location, Entity >();
     
-    public ModernVirtualResultDisplay( CraftDisplay container, Location loc, ItemStack item ) {
-        super( container, loc, item, 10 );
+    private double height;
+    
+    public ModernVirtualResultDisplay( CraftDisplay container, ItemStack item, double height ) {
+        super( container, item, 10 );
+        
+        this.height = height;
     }
     
     @Override
     public void init() {
+        Location location = getCraftDisplay().getLocation();
         for ( Player player : location.getWorld().getPlayers() ) {
-            spawn( location, player, item );
+            spawn( player );
         }
         if ( location.getWorld().getPlayers().isEmpty() ) {
-            spawn( location, null, item );
+            spawn( null );
         }
     }
     
     @Override
     public void remove() {
+        Location location = getCraftDisplay().getLocation();
         for ( Player player : location.getWorld().getPlayers() ) {
             kill( location, player );
         }
@@ -68,13 +74,14 @@ public class ModernVirtualResultDisplay extends AbstractItemDisplay {
         }
     }
     
-    public static void spawn( Location loc, Player p, ItemStack item ) {
+    private void spawn( Player p ) {
         ItemEntity itemEntity;
         Entity base;
 
-        if ( !items.containsKey( loc ) ) {
+        Location location = getCraftDisplay().getLocation();
+        if ( !items.containsKey( location ) ) {
             net.minecraft.world.item.ItemStack nmsItem = CraftItemStack.asNMSCopy( item );
-            itemEntity = new ItemEntity( ( ( CraftWorld ) loc.getWorld() ).getHandle(), loc.getX(), loc.getY(), loc.getZ(), nmsItem );
+            itemEntity = new ItemEntity( ( ( CraftWorld ) location.getWorld() ).getHandle(), location.getX(), location.getY(), location.getZ(), nmsItem );
             itemEntity.setInvulnerable( true );
             itemEntity.setNoGravity( true );
             if ( PublicCrafters.getInstance().isShowResultName() ) {
@@ -87,7 +94,7 @@ public class ModernVirtualResultDisplay extends AbstractItemDisplay {
             }
 
             // Summon the area cloud 0.375 less so that the item appears 1/4 above the crafting table
-            AreaEffectCloud cloud = new AreaEffectCloud( ( ( CraftWorld ) loc.getWorld() ).getHandle(), loc.getX(), loc.getY() - 0.375, loc.getZ() );
+            AreaEffectCloud cloud = new AreaEffectCloud( ( ( CraftWorld ) location.getWorld() ).getHandle(), location.getX() + .5, 1 + height + location.getY() - 0.4375, location.getZ() + .5 );
             cloud.setRadius( 0 );
             cloud.setRadiusOnUse( 0 );
             cloud.setRadiusPerTick( 0 );
@@ -100,11 +107,11 @@ public class ModernVirtualResultDisplay extends AbstractItemDisplay {
             
             itemEntity.startRiding( base );
             
-            items.put( loc, itemEntity );
-            bases.put( loc, base );
+            items.put( location, itemEntity );
+            bases.put( location, base );
         } else {
-            itemEntity = items.get( loc );
-            base = bases.get( loc );
+            itemEntity = items.get( location );
+            base = bases.get( location );
         }
 
         if ( p != null ) {

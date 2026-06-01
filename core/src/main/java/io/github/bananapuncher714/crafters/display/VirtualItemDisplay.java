@@ -15,6 +15,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 
 import io.github.bananapuncher714.crafters.PublicCrafters;
 import io.github.bananapuncher714.crafters.util.ReflectionUtil;
@@ -46,9 +47,10 @@ public class VirtualItemDisplay extends AbstractItemDisplay {
 	}
 	
 	protected EulerAngle handPose;
+	protected Location location;
 
-    public VirtualItemDisplay( CraftDisplay container, Location loc, ItemStack item, int slot ) {
-        super( container, loc.clone().add( -.5, .5, -.5 ), item, slot );
+    public VirtualItemDisplay( CraftDisplay container, ItemStack item, double height, int slot ) {
+        super( container, item, slot );
 
         handPose = PublicCrafters.getInstance().getAngleForMaterial( item.getType() );
 		if ( handPose == null ) {
@@ -58,6 +60,20 @@ public class VirtualItemDisplay extends AbstractItemDisplay {
 				handPose = ITEM_HAND_POSE;
 			}
 		}
+		
+		location = container.getLocation().clone().add( -.5, .5, -.5 );
+        Vector vector = PublicCrafters.getInstance().getOffsetForMaterial( item.getType() );
+        if ( vector != null ) {
+            location.add( vector );
+        }
+        
+        int col = slot % 3;
+        int row = slot / 3;
+        if ( item.getType().isBlock() ) {
+            location.add( .33125 + .2 * ( 2 - col ), height, .13125 + .2 * ( 2 - row ) );
+        } else {
+            location.add( .49125 + .2 * ( 2 - col ), height, .14125 + .2 * ( 2 - row ) );
+        }
     }
 
     @Override

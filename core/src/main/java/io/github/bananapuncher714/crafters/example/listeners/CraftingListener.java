@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import io.github.bananapuncher714.crafters.PublicCrafters;
 import io.github.bananapuncher714.crafters.display.AbstractItemDisplay;
 import io.github.bananapuncher714.crafters.display.CraftDisplay;
 import io.github.bananapuncher714.crafters.events.CraftDisplayUpdateEvent;
@@ -28,7 +29,7 @@ public class CraftingListener implements Listener {
 			return;
 		}
 		if ( display.getItem().getType() == Material.DIAMOND ) {
-			event.setItemDisplay( new CustomItemDisplay( display.getCraftDisplay(), display.getLocation(), display.getItem(), display.getSlot() ) );
+			event.setItemDisplay( new CustomItemDisplay( display.getCraftDisplay(), display.getItem(), PublicCrafters.getInstance().getHeight(), display.getSlot() ) );
 		}
 	}
 	

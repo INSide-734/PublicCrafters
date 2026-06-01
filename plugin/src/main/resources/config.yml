@@ -17,7 +17,7 @@ update-delay: 0
 # orientation:
 #    DIAMOND_BLOCK: "0, 0, 0"
 orientation: {}
-    
+
 # This is how much a material should be moved from its position, in x, y, and z
 # If you would like to move the diamond block by a certain amount, you can use this:
 # offset:

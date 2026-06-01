@@ -40,8 +40,8 @@ public class CustomItemDisplay extends ItemDisplay {
 		}
 	};
 	
-	public CustomItemDisplay( CraftDisplay container, Location loc, ItemStack item, int slot ) {
-		super( container, loc, item, slot );
+	public CustomItemDisplay( CraftDisplay container, ItemStack item, double height, int slot ) {
+		super( container, item, height, slot );
 		tableLoc = container.getLocation().clone().add( .5, .7, .5 );
 	}
 	

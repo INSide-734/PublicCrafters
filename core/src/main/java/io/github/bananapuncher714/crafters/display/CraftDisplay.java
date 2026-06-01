@@ -29,7 +29,6 @@ public class CraftDisplay {
 	protected AbstractItemDisplay resultDisplay;
 	protected final Location blockLoc;
 	protected final PublicCraftingInventory inventory;
-	protected double height;
 
 	/**
 	 * Provide a PublicCraftingInventory, and the default height is used
@@ -38,23 +37,10 @@ public class CraftDisplay {
 	 * It must be a {@link PublicCraftingInventory}, NOT your normal Bukkit inventory
 	 */
 	public CraftDisplay( PublicCraftingInventory inventory ) {
-		this( inventory, PublicCrafters.getInstance().getHeight() );
-	}
-
-	/**
-	 * Same as {@link #CraftDisplay(PublicCraftingInventory)}, but now you can provide the height of the items
-	 * 
-	 * @param inventory
-	 * Your {@link PublicCraftingInventory} instance
-	 * @param itemHeight
-	 * The height of the item that will be displayed above the table
-	 */
-	public CraftDisplay( PublicCraftingInventory inventory, double itemHeight ) {
 		blockLoc = inventory.getLocation();
-		height = itemHeight;
 		this.inventory = inventory;
 		for ( int i = 0; i < 9; i++ ) {
-			displays.add( null );
+		    displays.add( null );
 		}
 		updateDisplays( false );
 	}
@@ -142,10 +128,8 @@ public class CraftDisplay {
 		}
 		
 		if ( PublicCrafters.getInstance().isShowResult() ) {
-			Location spawnLoc = blockLoc.clone();
-			spawnLoc.add( .5, 1 + PublicCrafters.getInstance().getResultHeight(), .5 );
-			resultDisplay = new CraftResultDisplay( this, spawnLoc, result );
-			ItemResultDisplayCreateEvent createEvent = new ItemResultDisplayCreateEvent( resultDisplay, spawnLoc.clone() );
+			resultDisplay = new CraftResultDisplay( this, PublicCrafters.getInstance().getResultHeight(), result );
+			ItemResultDisplayCreateEvent createEvent = new ItemResultDisplayCreateEvent( resultDisplay, blockLoc.clone() );
 			Bukkit.getPluginManager().callEvent( createEvent );
 			if ( createEvent.isCancelled() ) {
 				return;
@@ -182,18 +166,7 @@ public class CraftDisplay {
 			return;
 		}
 		if ( force || display == null || !item.isSimilar( display.getItem() ) ) {
-			Location newLoc;
-			if ( item.getType().isBlock() ) {
-				newLoc = blockLoc.clone().add( .33125 + .2 * ( 2 - col ), height, .13125 + .2 * ( 2 - row ) );
-			} else {
-				newLoc = blockLoc.clone().add( .49125 + .2 * ( 2 - col ), height, .14125 + .2 * ( 2 - row ) );
-			}
-			if ( display != null ) {
-				ItemDisplayDestroyEvent event = new ItemDisplayDestroyEvent( display );
-				Bukkit.getPluginManager().callEvent( event );
-				display.remove();
-			}
-			display = new ItemDisplay( this, newLoc, item, index );
+			display = new ItemDisplay( this, item, PublicCrafters.getInstance().getHeight(), index );
 			ItemDisplayCreateEvent event = new ItemDisplayCreateEvent( blockLoc.clone(), display );
 			Bukkit.getPluginManager().callEvent( event );
 			if ( event.isCancelled() ) {
@@ -201,8 +174,14 @@ public class CraftDisplay {
 				return;
 			}
 			display = event.getItemDisplay();
+			
+			// Remove the previous display
+			AbstractItemDisplay prev = displays.set( index, display );
+			if ( prev != null ) {
+			    prev.remove();
+			}
+
 			display.init();
-			displays.set( index, display );
 		}
 	}
 	

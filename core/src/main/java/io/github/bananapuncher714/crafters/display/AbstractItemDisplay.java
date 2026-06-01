@@ -1,6 +1,5 @@
 package io.github.bananapuncher714.crafters.display;
 
-import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -14,13 +13,11 @@ import org.bukkit.inventory.ItemStack;
 public abstract class AbstractItemDisplay {
 	protected final int slot;
 	protected final ItemStack item;
-	protected final Location location;
 	protected final CraftDisplay parent;
 	
-	public AbstractItemDisplay( CraftDisplay container, Location loc, ItemStack item, int slot ) {
+	public AbstractItemDisplay( CraftDisplay container, ItemStack item, int slot ) {
 		this.item = item;
 		this.slot = slot;
-        this.location = loc.clone();
         this.parent = container;
 	}
 	
@@ -36,10 +33,6 @@ public abstract class AbstractItemDisplay {
 	
 	public ItemStack getItem() {
 		return item;
-	}
-	
-	public Location getLocation() {
-		return location;
 	}
 	
 	public CraftDisplay getCraftDisplay() {

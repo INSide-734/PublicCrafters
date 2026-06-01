@@ -52,9 +52,10 @@ public class ItemDisplay extends AbstractItemDisplay {
 	
 	private UUID uuid;
 	protected EulerAngle handPose;
+	protected Location location;
 	
-	public ItemDisplay( CraftDisplay container, Location loc, ItemStack item, int slot ) {
-		super( container, getOffsetLocation( loc, item ), item, slot );
+	public ItemDisplay( CraftDisplay container, ItemStack item, double height, int slot ) {
+		super( container, item, slot );
 
 		handPose = PublicCrafters.getInstance().getAngleForMaterial( item.getType() );
 		if ( handPose == null ) {
@@ -64,6 +65,20 @@ public class ItemDisplay extends AbstractItemDisplay {
 				handPose = ITEM_HAND_POSE;
 			}
 		}
+		
+		location = container.getLocation().clone();
+        Vector vector = PublicCrafters.getInstance().getOffsetForMaterial( item.getType() );
+        if ( vector != null ) {
+            location.add( vector );
+        }
+        
+        int col = slot % 3;
+        int row = slot / 3;
+        if ( item.getType().isBlock() ) {
+            location.add( .33125 + .2 * ( 2 - col ), height, .13125 + .2 * ( 2 - row ) );
+        } else {
+            location.add( .49125 + .2 * ( 2 - col ), height, .14125 + .2 * ( 2 - row ) );
+        }
 	}
 	
 	/**
@@ -91,6 +106,10 @@ public class ItemDisplay extends AbstractItemDisplay {
 		}
 		unregisterEntity( uuid );
 	}
+	
+	public Location getLocation() {
+        return location;
+    }
 	
 	/**
 	 * You will also want to register and unregister your armorstands or entities that you create;
@@ -139,14 +158,5 @@ public class ItemDisplay extends AbstractItemDisplay {
 		NBTEditor.set( model, 1, "DisabledSlots" );
 		NBTEditor.set( model, ( byte ) 1, "Invulnerable" );
 		return model;
-	}
-
-	protected static Location getOffsetLocation( Location location, ItemStack item ) {
-		Location loc = location.clone();
-		Vector vector = PublicCrafters.getInstance().getOffsetForMaterial( item.getType() );
-		if ( vector != null ) {
-			loc.add( vector );
-		}
-		return loc;
 	}
 }

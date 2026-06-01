@@ -22,8 +22,14 @@ public class VirtualCraftResultDisplay extends AbstractItemDisplay {
 	private static Map< Location, Object > entities = new HashMap< Location, Object >();
 	private static Map< Location, Object > armorstands = new HashMap< Location, Object >();
 	
-	public VirtualCraftResultDisplay( CraftDisplay container, Location loc, ItemStack item ) {
-		super( container, loc, item, 10 );
+	protected Location location;
+	protected double height;
+	
+	public VirtualCraftResultDisplay( CraftDisplay container, double height, ItemStack item ) {
+		super( container, item, 10 );
+
+        this.height = height;
+        this.location = container.getLocation().clone().add( .5, 1 + height, .5 );
 	}
 	
 	@Override
@@ -38,6 +44,7 @@ public class VirtualCraftResultDisplay extends AbstractItemDisplay {
 	
 	@Override
 	public void remove() {
+	    Location location = getCraftDisplay().getLocation();
 		for ( Player player : location.getWorld().getPlayers() ) {
 			kill( location, player );
 		}
@@ -62,7 +69,7 @@ public class VirtualCraftResultDisplay extends AbstractItemDisplay {
 		}
 	}
 	
-	public static void spawn( Location loc, Player p, ItemStack item ) {
+	private static void spawn( Location loc, Player p, ItemStack item ) {
 		try {
 			Object itemEntity;
 			Object armorStand;

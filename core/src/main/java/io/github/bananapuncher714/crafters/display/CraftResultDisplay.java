@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -26,13 +27,17 @@ public class CraftResultDisplay extends AbstractItemDisplay {
 	
 	private UUID uuid;
 	private UUID itemUUID;
+	private double height;
 	
-	public CraftResultDisplay( CraftDisplay container, Location loc, ItemStack item ) {
-		super( container, loc, item, 10 );
+	public CraftResultDisplay( CraftDisplay container, double height, ItemStack item ) {
+		super( container, item, 10 );
+		
+		this.height = height;
 	}
 	
 	@Override
 	public void init() {
+	    Location location = getCraftDisplay().getLocation().clone().add( .5, 1 + height, .5 );
 		ArmorStand armorstand = getModelStand( location );
 		uuid = armorstand.getUniqueId();
 		
@@ -56,11 +61,12 @@ public class CraftResultDisplay extends AbstractItemDisplay {
 	
 	@Override
 	public void remove() {
-		Entity display = Utils.getEntityByUUID( uuid, location.getWorld() );
+	    World world = getCraftDisplay().getLocation().getWorld();
+		Entity display = Utils.getEntityByUUID( uuid, world );
 		if ( display != null ) {
 			display.remove();
 		}
-		Entity item = Utils.getEntityByUUID( itemUUID, location.getWorld() );
+		Entity item = Utils.getEntityByUUID( itemUUID, world );
 		if ( item != null ) {
 			item.remove();
 		}
