@@ -3,7 +3,6 @@ package io.github.bananapuncher714.crafters.implementation.v26_1;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -17,13 +16,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
 
 import com.mojang.authlib.GameProfile;
 
 import io.github.bananapuncher714.crafters.CraftInventoryLoader;
 import io.github.bananapuncher714.crafters.PublicCrafters;
 import io.github.bananapuncher714.crafters.implementation.api.CraftInventoryManager;
+import io.github.bananapuncher714.crafters.implementation.api.InventoryData;
 import io.github.bananapuncher714.crafters.implementation.api.PublicCraftingInventory;
 import io.netty.util.internal.ThreadLocalRandom;
 import net.minecraft.network.Connection;
@@ -125,13 +124,14 @@ public class ContainerManager_v26_1 implements CraftInventoryManager {
 	}
 	
 	@Override
-	public void load( Location location, List< ItemStack > items ) {
+	public void load( Location location, InventoryData data ) {
 		// Is 0 really ok as an id?!?
 		CustomInventoryCrafting crafting = new CustomInventoryCrafting( location, this, new SelfContainer( 0 ), 3, 3 );
 		ResultContainer result = new ResultContainer();
 		crafting.resultInventory = result;
 		
-		crafting.setItems( items );
+		crafting.setFacing( data.face );
+		crafting.setItems( data.items );
 		
 		benches.put( location, crafting );
 	}

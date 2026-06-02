@@ -1,7 +1,9 @@
 package io.github.bananapuncher714.crafters.implementation.v26_1;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -24,10 +26,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 
 public class ModernVirtualResultDisplay extends AbstractItemDisplay {
-    private static Map< Location, ItemEntity > items = new HashMap< Location, ItemEntity >();
-    private static Map< Location, Entity > bases = new HashMap< Location, Entity >();
+    private static Set< ModernVirtualResultDisplay > displays = new HashSet< ModernVirtualResultDisplay >();
     
     private double height;
+    private ItemEntity itemEntity;
+    private Entity baseEntity;
     
     public ModernVirtualResultDisplay( CraftDisplay container, ItemStack item, double height ) {
         super( container, item, 10 );
@@ -44,44 +47,44 @@ public class ModernVirtualResultDisplay extends AbstractItemDisplay {
         if ( location.getWorld().getPlayers().isEmpty() ) {
             spawn( null );
         }
+        
+        displays.add( this );
     }
     
     @Override
     public void remove() {
         Location location = getCraftDisplay().getLocation();
         for ( Player player : location.getWorld().getPlayers() ) {
-            kill( location, player );
+            kill( player );
         }
-        items.remove( location );
-        bases.remove( location );
+        
+        itemEntity = null;
+        baseEntity = null;
+        
+        displays.remove( this );
     }
     
     public static void spawnAll( Player player ) {
-        for ( Location key : items.keySet() ) {
-            if ( player.getWorld() == key.getWorld() ) {
-                ItemEntity item = items.get( key );
-                Entity base = bases.get( key );
-                respawn( player, item, base );
+        for ( ModernVirtualResultDisplay display : displays ) {
+            if ( player.getWorld() == display.getCraftDisplay().getLocation().getWorld() ) {
+                display.respawn( player );
             }
         }
     }
 
     public static void despawnAll( World world, Player player ) {
-        for ( Location location : items.keySet() ) {
-            if ( location.getWorld() == world ) {
-                kill( location, player );
+        for ( ModernVirtualResultDisplay display : displays ) {
+            if ( world == display.getCraftDisplay().getLocation().getWorld() ) {
+                display.kill( player );
             }
         }
     }
     
     private void spawn( Player p ) {
-        ItemEntity itemEntity;
-        Entity base;
-
         Location location = getCraftDisplay().getLocation();
-        if ( !items.containsKey( location ) ) {
+        if ( itemEntity == null ) {
             net.minecraft.world.item.ItemStack nmsItem = CraftItemStack.asNMSCopy( item );
-            itemEntity = new ItemEntity( ( ( CraftWorld ) location.getWorld() ).getHandle(), location.getX(), location.getY(), location.getZ(), nmsItem );
+            itemEntity = new ItemEntity( ( ( CraftWorld ) location.getWorld() ).getHandle(), location.getX() + 0.5, location.getY(), location.getZ() + 0.5, nmsItem );
             itemEntity.setInvulnerable( true );
             itemEntity.setNoGravity( true );
             if ( PublicCrafters.getInstance().isShowResultName() ) {
@@ -103,41 +106,29 @@ public class ModernVirtualResultDisplay extends AbstractItemDisplay {
             cloud.setInvulnerable( true );
             cloud.setInvisible( true );
             cloud.setNoGravity( true );
-            base = cloud;
+            baseEntity = cloud;
             
-            itemEntity.startRiding( base );
-            
-            items.put( location, itemEntity );
-            bases.put( location, base );
-        } else {
-            itemEntity = items.get( location );
-            base = bases.get( location );
+            itemEntity.startRiding( baseEntity );
         }
 
         if ( p != null ) {
-            respawn( p, itemEntity, base );
+            respawn( p );
         }
     }
 
-    private static void respawn( Player player, ItemEntity itemEntity, Entity base ) {
+    protected void respawn( Player player ) {
         ServerPlayer serverPlayer = ( ( CraftPlayer ) player ).getHandle();
 
         serverPlayer.connection.send( itemEntity.getAddEntityPacket( new ServerEntity( null, itemEntity, 0, false, null, null ) ) );
         itemEntity.refreshEntityData( serverPlayer );
-        serverPlayer.connection.send( base.getAddEntityPacket( new ServerEntity( null, base, 0, false, null, null ) ) );
-        base.refreshEntityData( serverPlayer );
+        serverPlayer.connection.send( baseEntity.getAddEntityPacket( new ServerEntity( null, baseEntity, 0, false, null, null ) ) );
+        baseEntity.refreshEntityData( serverPlayer );
 
-        serverPlayer.connection.send( new ClientboundSetPassengersPacket( base ) );
+        serverPlayer.connection.send( new ClientboundSetPassengersPacket( baseEntity ) );
     }
     
-    public static void kill( Location location, Player player ) {
-        if ( !items.containsKey( location ) ) {
-            return;
-        }
-
-        ItemEntity item = items.get( location );
-        Entity base = bases.get( location );
-        ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket( item.getId(), base.getId() );
+    protected void kill( Player player ) {
+        ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket( itemEntity.getId(), baseEntity.getId() );
         ( ( CraftPlayer ) player ).getHandle().connection.send( packet );
     }
 }

@@ -65,8 +65,25 @@ public interface CraftInventoryManager {
 	 * Any location without an inventory already
 	 * @param items
 	 * Must be a list of 9 items
+	 * 
+	 * @deprecated
+	 * Use load(Location, InventoryData)
 	 */
-	public void load( Location location, List< ItemStack > items );
+	default public void load( Location location, List< ItemStack > items ) {
+	    throw new UnsupportedOperationException();
+	}
+	
+	/**
+     * Load a {@link PublicCraftingInventory} with the given items
+     * 
+     * @param location
+     * Any location without an inventory already
+     * @param data
+     * Inventory data which can be loaded
+     */
+    default public void load( Location location, InventoryData data ) {
+        load( location, data.items );
+    }
 	
 	/**
 	 * Save all the tables inside the specified chunk; this will delete the tables in that chunk until they're loaded back in.

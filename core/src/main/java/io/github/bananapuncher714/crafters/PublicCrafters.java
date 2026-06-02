@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.bstats.bukkit.Metrics;
@@ -28,6 +29,7 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import io.github.bananapuncher714.crafters.implementation.api.CraftInventoryManager;
+import io.github.bananapuncher714.crafters.implementation.api.InventoryData;
 import io.github.bananapuncher714.crafters.listeners.ChunkListener;
 import io.github.bananapuncher714.crafters.listeners.CraftBlockListener;
 import io.github.bananapuncher714.crafters.listeners.InventoryOpenListener;
@@ -128,10 +130,10 @@ public class PublicCrafters extends JavaPlugin {
 	private void loadChunks() {
 		for ( World world : Bukkit.getWorlds() ) {
 			for ( Chunk chunk : world.getLoadedChunks() ) {
-				Map< Location, List< ItemStack > > itemMap = CraftInventoryLoader.loadChunk( getSaveFolder(), chunk.getWorld(), chunk.getX(), chunk.getZ(), deleteOnLoad );
-				for ( Location location : itemMap.keySet() ) {
-					manager.load( location, itemMap.get( location ) );
-				}
+			    Map< Location, InventoryData > itemMap = CraftInventoryLoader.loadChunk( getSaveFolder(), chunk.getWorld(), chunk.getX(), chunk.getZ(), deleteOnLoad );
+		        for ( Entry< Location, InventoryData > entry : itemMap.entrySet() ) {
+		            manager.load( entry.getKey(), entry.getValue() );
+		        }
 			}
 		}
 	}
@@ -278,7 +280,7 @@ public class PublicCrafters extends JavaPlugin {
 	}
 
 	public void deleteTable( Location location ) {
-		CraftInventoryLoader.getItems( getSaveFolder(), location, true );
+		CraftInventoryLoader.getData( getSaveFolder(), location, true );
 	}
 	
 	public boolean isPrivate( UUID playerUUID ) {

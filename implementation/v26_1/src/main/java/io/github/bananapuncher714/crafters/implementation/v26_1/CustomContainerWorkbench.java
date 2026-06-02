@@ -180,7 +180,7 @@ public class CustomContainerWorkbench extends CraftingMenu {
 	        postPlaceAction = ServerPlaceRecipe.placeRecipe( new ServerPlaceRecipe.CraftingMenuAccess< CraftingRecipe >() {
 	            @Override
 	            public void fillCraftSlotsStackedContents( StackedItemContents stackeditemcontents ) {
-	                fillCraftSlotsStackedContents( stackeditemcontents );
+	                CustomContainerWorkbench.this.fillCraftSlotsStackedContents( stackeditemcontents );
 	            }
 
 	            @Override

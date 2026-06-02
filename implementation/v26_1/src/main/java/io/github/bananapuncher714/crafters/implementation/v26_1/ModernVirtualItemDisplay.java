@@ -1,8 +1,10 @@
 package io.github.bananapuncher714.crafters.implementation.v26_1;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -16,6 +18,7 @@ import org.bukkit.craftbukkit.inventory.CraftMetaBlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 import org.joml.Matrix4f;
 
 import com.mojang.math.Transformation;
@@ -31,8 +34,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 public class ModernVirtualItemDisplay extends AbstractItemDisplay {
-    private static Map< Location, Entity > items = new HashMap< Location, Entity >();
+    private static Set< ModernVirtualItemDisplay > displays = new HashSet< ModernVirtualItemDisplay >();
     
+    protected Entity displayEntity = null;
     protected Location location;
     
     public ModernVirtualItemDisplay( CraftDisplay container, ItemStack item, double height, int slot ) {
@@ -46,47 +50,69 @@ public class ModernVirtualItemDisplay extends AbstractItemDisplay {
     @Override
     public void init() {
         for ( Player player : location.getWorld().getPlayers() ) {
-            spawn( location, player, item, getSlot() );
+            spawn( player );
         }
         if ( location.getWorld().getPlayers().isEmpty() ) {
-            spawn( location, null, item, getSlot() );
+            spawn( null );
         }
+        
+        displays.add( this );
     }
 
     @Override
     public void remove() {
         for ( Player player : location.getWorld().getPlayers() ) {
-            kill( player, items.get( location ) );
+            kill( player, displayEntity );
         }
-        items.remove( location );
+        
+        displayEntity = null;
+        
+        displays.remove( this );
     }
 
     public static void spawnAll( Player player ) {
-        for ( Entry< Location, Entity > entry : items.entrySet() ) {
-            if ( entry.getKey().getWorld() == player.getWorld() ) {
-                respawn( player, entry.getValue() );
+        for ( ModernVirtualItemDisplay display : displays ) {
+            if ( display.getCraftDisplay().getLocation().getWorld() == player.getWorld() ) {
+                respawn( player, display.displayEntity );
             }
         }
     }
 
     public static void despawnAll( World world, Player player ) {
-        for ( Entry< Location, Entity > entry : items.entrySet() ) {
-            if ( entry.getKey().getWorld() == world ) {
-                kill( player, entry.getValue() );
+        for ( ModernVirtualItemDisplay display : displays ) {
+            if ( display.getCraftDisplay().getLocation().getWorld() == player.getWorld() ) {
+                kill( player, display.displayEntity );
             }
         }
     }
 
-    public static void spawn( Location loc, Player player, ItemStack item, int slot ) {
-        Entity display;
-        
-        if ( !items.containsKey( loc ) ) {
-            Display disp;
-            Matrix4f matrix = new Matrix4f().scale( 0.1875f );
+    private void spawn( Player player ) {
+        if ( displayEntity == null ) {
             
+            Vector diff = new Vector( location.getBlockX() + 0.5, location.getY(), location.getBlockZ() + 0.5 ).subtract( location.toVector() );
+            
+            Matrix4f matrix = new Matrix4f();
+            matrix.translate( ( float ) diff.getX(), 0, ( float ) diff.getZ() );
+            switch ( getCraftDisplay().getInventory().getFace() ) {
+            case EAST:
+                matrix.rotate( ( float ) Math.PI / 2, 0, 1, 0 );
+                break;
+            case NORTH:
+                matrix.rotate( ( float ) Math.PI, 0, 1, 0 );
+                break;
+            case WEST:
+                matrix.rotate( ( float ) Math.PI * 1.5f, 0, 1, 0 );
+                break;
+            default:
+                break;
+            }
+            matrix.translate( ( float ) -diff.getX(), 0, ( float ) -diff.getZ() );
+            matrix.scale( 0.1875f );
+            
+            Display disp;
             ItemMeta meta = item.getItemMeta();
             if ( item.getType().isBlock() ) {
-                net.minecraft.world.entity.Display.BlockDisplay blockDisp = new net.minecraft.world.entity.Display.BlockDisplay( EntityType.BLOCK_DISPLAY, ( ( CraftWorld ) loc.getWorld() ).getHandle() );
+                net.minecraft.world.entity.Display.BlockDisplay blockDisp = new net.minecraft.world.entity.Display.BlockDisplay( EntityType.BLOCK_DISPLAY, ( ( CraftWorld ) location.getWorld() ).getHandle() );
                 if ( meta instanceof CraftMetaBlockState ) {
                     BlockState state = ( ( CraftMetaBlockState ) meta ).getBlockState();
                     blockDisp.setBlockState( ( ( CraftBlockState ) state ).getHandle() );
@@ -99,28 +125,26 @@ public class ModernVirtualItemDisplay extends AbstractItemDisplay {
                 matrix.rotate( ( float ) Math.PI, 0, 1, 0 );
                 matrix.translate( -0.5f, -0.5f, -0.5f );
             } else {
-                net.minecraft.world.entity.Display.ItemDisplay itemDisp = new net.minecraft.world.entity.Display.ItemDisplay( EntityType.ITEM_DISPLAY, ( ( CraftWorld ) loc.getWorld() ).getHandle() );
+                net.minecraft.world.entity.Display.ItemDisplay itemDisp = new net.minecraft.world.entity.Display.ItemDisplay( EntityType.ITEM_DISPLAY, ( ( CraftWorld ) location.getWorld() ).getHandle() );
                 itemDisp.setItemStack( CraftItemStack.asNMSCopy( item ) );
                 disp = itemDisp;
                 
+                // Flip it
+                matrix.rotate( ( float ) Math.PI, 0, 0, 1 );
                 // Rotate the item so it's facing upwards
                 matrix.rotate( ( float ) Math.toRadians( -90 ), 1, 0, 0 );
             }
             
-            disp.setPos( loc.getX(), loc.getY(), loc.getZ() );
+            disp.setPos( location.getX(), location.getY(), location.getZ() );
             disp.setBrightnessOverride( Brightness.FULL_BRIGHT );
             
             com.mojang.math.Transformation transformation = new com.mojang.math.Transformation( matrix );
             disp.setTransformation( new Transformation( transformation.translation(), transformation.leftRotation(), transformation.scale(), transformation.rightRotation() ) );
-            display = disp;
-
-            items.put( loc, display );
-        } else {
-            display = items.get( loc );
+            displayEntity = disp;
         }
         
         if ( player != null ) {
-            respawn( player, display );
+            respawn( player, displayEntity );
         }
     }
     

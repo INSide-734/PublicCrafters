@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.bananapuncher714.crafters.PublicCrafters;
@@ -29,7 +30,7 @@ public class CraftDisplay {
 	protected AbstractItemDisplay resultDisplay;
 	protected final Location blockLoc;
 	protected final PublicCraftingInventory inventory;
-
+	
 	/**
 	 * Provide a PublicCraftingInventory, and the default height is used
 	 * 

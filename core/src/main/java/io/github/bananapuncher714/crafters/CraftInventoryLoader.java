@@ -1,19 +1,19 @@
 package io.github.bananapuncher714.crafters;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import io.github.bananapuncher714.crafters.implementation.api.InventoryData;
 import io.github.bananapuncher714.crafters.implementation.api.PublicCraftingInventory;
 
 /**
@@ -47,11 +47,17 @@ public final class CraftInventoryLoader {
 		
 		FileConfiguration config = YamlConfiguration.loadConfiguration( saveFile );
 		
+		InventoryData data = inventory.getData();
+		
 		int index = 0;
-		for ( ItemStack item : inventory.getBukkitItems() ) {
+		for ( ItemStack item : data.items ) {
 			config.set( "items." + index++, item );
 		}
-	
+		
+		if ( data.face != BlockFace.SELF ) {
+		    config.set( "face", data.face.toString() );
+		}
+		
 		try {
 			config.save( saveFile );
 		} catch ( Exception exception ) {
@@ -59,7 +65,7 @@ public final class CraftInventoryLoader {
 		}
 	}
 	
-	public static List< ItemStack > getItems( File baseDir, Location location, boolean delete ) {
+	public static InventoryData getData( File baseDir, Location location, boolean delete ) {
 		Chunk chunk = location.getChunk();
 		int x = chunk.getX();
 		int z = chunk.getZ();
@@ -69,33 +75,36 @@ public final class CraftInventoryLoader {
 
 		File saveFile = new File( saveLoc + "/" + location.getBlockX() + "_" + location.getBlockY() + "_" + location.getBlockZ() );
 		
-		return getItems( saveFile, delete );
+		return getData( saveFile, delete );
 	}
 	
-	public static List< ItemStack > getItems( File file, boolean delete ) {
-		List< ItemStack > items = new ArrayList< ItemStack >();
+	public static InventoryData getData( File file, boolean delete ) {
+	    InventoryData data = new InventoryData();
 		
 		if ( !file.exists() ) {
-			while ( items.size() < 9 ) {
-				items.add( new ItemStack( Material.AIR ) );
+			while ( data.items.size() < 9 ) {
+			    data.items.add( new ItemStack( Material.AIR ) );
 			}
-			return items;
+			return data;
 		}
 		
 		FileConfiguration config = YamlConfiguration.loadConfiguration( file );
 		
 		for ( int index = 0; index < 9; index++ ) {
-			items.add( config.getItemStack( "items." + index ) );
+		    data.items.add( config.getItemStack( "items." + index ) );
 		}
+		
+		data.face = BlockFace.valueOf( config.getString( "face", "SELF" ) );
+		
 		if ( delete ) {
 			file.delete();
 		}
 		
-		return items;
+		return data;
 	}
 	
-	public static Map< Location, List< ItemStack > > loadChunk( File baseDir, World world, int x, int z, boolean delete ) {
-		Map< Location, List< ItemStack > > itemMap = new HashMap< Location, List< ItemStack > >();
+	public static Map< Location, InventoryData > loadChunk( File baseDir, World world, int x, int z, boolean delete ) {
+		Map< Location, InventoryData > itemMap = new HashMap< Location, InventoryData >();
 		
 		File saveLoc = new File( baseDir + "/" + world.getName() + "/" + x + "_" + z + "/" );
 		
@@ -106,7 +115,7 @@ public final class CraftInventoryLoader {
 		for ( File file : saveLoc.listFiles() ) {
 			String[] locArray = file.getName().split( "_" );
 			Location location = new Location( world, Integer.parseInt( locArray[ 0 ] ), Integer.parseInt( locArray[ 1 ] ), Integer.parseInt( locArray[ 2 ] ) );
-			itemMap.put( location, getItems( file, delete ) );
+			itemMap.put( location, getData( file, delete ) );
 			if ( delete ) {
 				file.delete();
 			}

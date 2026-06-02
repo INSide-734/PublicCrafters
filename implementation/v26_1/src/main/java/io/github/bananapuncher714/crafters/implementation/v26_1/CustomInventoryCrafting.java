@@ -8,13 +8,17 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.util.RayTraceResult;
 
 import com.google.common.collect.Sets;
 
 import io.github.bananapuncher714.crafters.display.CraftDisplay;
+import io.github.bananapuncher714.crafters.implementation.api.InventoryData;
 import io.github.bananapuncher714.crafters.implementation.api.PublicCraftingInventory;
 import io.github.bananapuncher714.crafters.implementation.v26_1.ContainerManager_v26_1.SelfContainer;
 import net.minecraft.world.ContainerHelper;
@@ -34,6 +38,7 @@ public class CustomInventoryCrafting extends TransientCraftingContainer implemen
 	private UUID id;
 	private Location bloc;
 	private CraftDisplay display;
+	private BlockFace face = BlockFace.SELF;
 	private ContainerManager_v26_1 manager;
 	protected SelfContainer selfContainer;
 	
@@ -60,6 +65,9 @@ public class CustomInventoryCrafting extends TransientCraftingContainer implemen
 		for ( AbstractContainerMenu container : containers ) {
 			container.slotsChanged( this );
 		}
+		
+		updateFace();
+		
 		// Update the armorstand grid
 		display.update();
 	}
@@ -72,6 +80,9 @@ public class CustomInventoryCrafting extends TransientCraftingContainer implemen
 				container.slotsChanged( this );
 			}
 		}
+		
+		updateFace();
+		
 		// Update the armorstand grid
 		display.update();
 		return itemstack;
@@ -87,6 +98,11 @@ public class CustomInventoryCrafting extends TransientCraftingContainer implemen
 		return bukkitItems;
 	}
 
+	@Override
+	public InventoryData getData() {
+	    return new InventoryData( getBukkitItems(), face );
+	}
+	
 	@Override
 	public org.bukkit.inventory.ItemStack getResult() {
 		if ( this.resultInventory != null ) {
@@ -112,6 +128,8 @@ public class CustomInventoryCrafting extends TransientCraftingContainer implemen
 			Bukkit.getPluginManager().callEvent( new PrepareItemCraftEvent( crafting, container.getBukkitView(), false ) );
 		}
 		
+		updateFace();
+		
 		display.forceUpdate();
 	}
 	
@@ -127,6 +145,46 @@ public class CustomInventoryCrafting extends TransientCraftingContainer implemen
 	
 	protected void setLocation( Location newLoc ) {
 		bloc = newLoc;
+	}
+	
+	protected void setFacing( BlockFace face ) {
+	    if ( this.face != face ) {
+	        this.face = face;
+	        display.forceUpdate();
+	    }
+	}
+	
+	@Override
+	public BlockFace getFace() {
+	    return face;
+	}
+	
+	protected void updateFace() {
+	    if ( isEmpty() ) {
+	        face = BlockFace.SELF;
+	    } else if ( face == BlockFace.SELF ) {
+	        if ( containers.isEmpty() ) {
+                // No face, and no containers... default to south facing
+                face = BlockFace.SOUTH;
+	        } else {
+	            // Grab the current viewer
+	            HumanEntity entity = selfContainer.getBukkitView().getPlayer();
+	            RayTraceResult result = entity.rayTraceBlocks( 10 );
+	            BlockFace clicked = result.getHitBlockFace();
+	            
+	            if ( clicked == BlockFace.UP || clicked == BlockFace.DOWN ) {
+	                // No help here, get their facing direction from their yaw
+	                double yaw = entity.getLocation().getYaw();
+	                
+	                int re = ( int ) ( ( yaw + 495 ) % 360 ) / 90;
+	                face = new BlockFace[] { BlockFace.WEST, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH }[ re ];
+	            } else {
+	                face = clicked;
+	            }
+	        }
+	    }
+	    
+	    display.forceUpdate();
 	}
 	
 	@Override

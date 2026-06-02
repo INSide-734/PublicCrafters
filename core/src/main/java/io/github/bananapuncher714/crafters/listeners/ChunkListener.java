@@ -1,7 +1,7 @@
 package io.github.bananapuncher714.crafters.listeners;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -10,11 +10,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.inventory.ItemStack;
 
 import io.github.bananapuncher714.crafters.CraftInventoryLoader;
 import io.github.bananapuncher714.crafters.PublicCrafters;
 import io.github.bananapuncher714.crafters.implementation.api.CraftInventoryManager;
+import io.github.bananapuncher714.crafters.implementation.api.InventoryData;
 
 /**
  * Meant to handle loading and unloading tables as the chunks load and unload;
@@ -34,9 +34,9 @@ public class ChunkListener implements Listener {
 	@EventHandler
 	private void onChunkLoadEvent( ChunkLoadEvent event ) {
 		Chunk chunk = event.getChunk();
-		Map< Location, List< ItemStack > > itemMap = CraftInventoryLoader.loadChunk( plugin.getSaveFolder(), chunk.getWorld(), chunk.getX(), chunk.getZ(), plugin.isDeleteOnLoad() );
-		for ( Location location : itemMap.keySet() ) {
-			manager.load( location, itemMap.get( location ) );
+		Map< Location, InventoryData > itemMap = CraftInventoryLoader.loadChunk( plugin.getSaveFolder(), chunk.getWorld(), chunk.getX(), chunk.getZ(), plugin.isDeleteOnLoad() );
+		for ( Entry< Location, InventoryData > entry : itemMap.entrySet() ) {
+			manager.load( entry.getKey(), entry.getValue() );
 		}
 	}
 

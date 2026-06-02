@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.bananapuncher714.crafters.display.CraftDisplay;
@@ -22,6 +23,26 @@ public interface PublicCraftingInventory {
 	 * Returns a list of Bukkit itemstacks.
 	 */
 	public List< ItemStack > getBukkitItems();
+	
+	/**
+	 * Get the relevant data for this inventory
+	 * 
+	 * @return
+	 * Returns the relevant data, such as the items and direction
+	 */
+	default public InventoryData getData() {
+	    return new InventoryData( getBukkitItems() );
+	}
+	
+	/**
+	 * Get the default block face for this inventory 
+	 * 
+	 * @return
+	 * The direction that the crafting table is facing
+	 */
+	default public BlockFace getFace() {
+	    return BlockFace.SELF;
+	}
 	
 	/**
 	 * Get this table's unique ID;
