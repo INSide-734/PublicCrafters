@@ -1,15 +1,7 @@
 package io.github.bananapuncher714.crafters.util;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
 
@@ -57,6 +49,11 @@ public final class ContainerManagerLoader {
                 e.printStackTrace();
             }
             mcVersion = ( String ) getVersionMethod.invoke( dedicated );
+            
+            // For now use 26.1 since there is a chance it works with all later versions
+            if ( NBTEditor.getMinecraftVersion().greaterThanOrEqualTo( MinecraftVersion.v26_1 ) ) {
+                version = MinecraftVersion.v26_1.toString();
+            }
         } catch ( NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e1 ) {
             e1.printStackTrace();
         }

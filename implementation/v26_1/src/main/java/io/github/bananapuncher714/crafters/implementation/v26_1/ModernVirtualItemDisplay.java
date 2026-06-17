@@ -1,9 +1,6 @@
 package io.github.bananapuncher714.crafters.implementation.v26_1;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.bukkit.Location;
@@ -25,7 +22,9 @@ import com.mojang.math.Transformation;
 
 import io.github.bananapuncher714.crafters.display.AbstractItemDisplay;
 import io.github.bananapuncher714.crafters.display.CraftDisplay;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Brightness;
@@ -112,7 +111,7 @@ public class ModernVirtualItemDisplay extends AbstractItemDisplay {
             Display disp;
             ItemMeta meta = item.getItemMeta();
             if ( item.getType().isBlock() ) {
-                net.minecraft.world.entity.Display.BlockDisplay blockDisp = new net.minecraft.world.entity.Display.BlockDisplay( EntityType.BLOCK_DISPLAY, ( ( CraftWorld ) location.getWorld() ).getHandle() );
+                net.minecraft.world.entity.Display.BlockDisplay blockDisp = new net.minecraft.world.entity.Display.BlockDisplay( BuiltInRegistries.ENTITY_TYPE.get( Identifier.withDefaultNamespace( "block_display" ) ).get().value(), ( ( CraftWorld ) location.getWorld() ).getHandle() );
                 if ( meta instanceof CraftMetaBlockState ) {
                     BlockState state = ( ( CraftMetaBlockState ) meta ).getBlockState();
                     blockDisp.setBlockState( ( ( CraftBlockState ) state ).getHandle() );
@@ -125,7 +124,7 @@ public class ModernVirtualItemDisplay extends AbstractItemDisplay {
                 matrix.rotate( ( float ) Math.PI, 0, 1, 0 );
                 matrix.translate( -0.5f, -0.5f, -0.5f );
             } else {
-                net.minecraft.world.entity.Display.ItemDisplay itemDisp = new net.minecraft.world.entity.Display.ItemDisplay( EntityType.ITEM_DISPLAY, ( ( CraftWorld ) location.getWorld() ).getHandle() );
+                net.minecraft.world.entity.Display.ItemDisplay itemDisp = new net.minecraft.world.entity.Display.ItemDisplay( BuiltInRegistries.ENTITY_TYPE.get( Identifier.withDefaultNamespace( "item_display" ) ).get().value(), ( ( CraftWorld ) location.getWorld() ).getHandle() );
                 itemDisp.setItemStack( CraftItemStack.asNMSCopy( item ) );
                 disp = itemDisp;
                 

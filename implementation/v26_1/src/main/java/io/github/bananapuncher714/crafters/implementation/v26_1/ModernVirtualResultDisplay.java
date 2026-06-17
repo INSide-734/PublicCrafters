@@ -1,8 +1,6 @@
 package io.github.bananapuncher714.crafters.implementation.v26_1;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Location;
