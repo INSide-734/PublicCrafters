@@ -1,5 +1,7 @@
 package io.github.bananapuncher714.crafters.implementation.v26_1;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +35,26 @@ import net.minecraft.world.item.ItemStack;
  * @author BananaPuncher714
  */
 public class CustomInventoryCrafting extends TransientCraftingContainer implements PublicCraftingInventory {
+    private static Method TO_BUKKIT_ITEMSTACK;
+    
+    static {
+        try {
+            TO_BUKKIT_ITEMSTACK = CraftItemStack.class.getDeclaredMethod( "asBukkitCopy", ItemStack.class );
+            TO_BUKKIT_ITEMSTACK.setAccessible( true );
+        } catch ( NoSuchMethodException e ) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static org.bukkit.inventory.ItemStack getBukkitItemStackFrom( ItemStack item ) {
+        try {
+            return ( org.bukkit.inventory.ItemStack ) TO_BUKKIT_ITEMSTACK.invoke( null, item );
+        } catch ( IllegalAccessException | InvocationTargetException e ) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
 	Set< AbstractContainerMenu > containers = Sets.newHashSet();
 	private List< ItemStack > items;
 	private UUID id;
@@ -93,7 +115,7 @@ public class CustomInventoryCrafting extends TransientCraftingContainer implemen
 	public List< org.bukkit.inventory.ItemStack > getBukkitItems() {
 		List< org.bukkit.inventory.ItemStack > bukkitItems = new ArrayList< org.bukkit.inventory.ItemStack >();
 		for ( ItemStack item : items ) {
-			bukkitItems.add( CraftItemStack.asBukkitCopy( item ) );
+			bukkitItems.add( getBukkitItemStackFrom( item ) );
 		}
 		return bukkitItems;
 	}
@@ -106,7 +128,7 @@ public class CustomInventoryCrafting extends TransientCraftingContainer implemen
 	@Override
 	public org.bukkit.inventory.ItemStack getResult() {
 		if ( this.resultInventory != null ) {
-			return CraftItemStack.asBukkitCopy( resultInventory.getItem( 0 ) );
+			return getBukkitItemStackFrom( resultInventory.getItem( 0 ) );
 		}
 		return null;
 	}

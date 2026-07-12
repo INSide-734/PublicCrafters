@@ -177,6 +177,7 @@ public class CustomContainerWorkbench extends CraftingMenu {
 	    RecipeBookMenu.PostPlaceAction postPlaceAction;
 	    try {
 	        List< Slot > list = getInputGridSlots();
+	        craftInventory.selfContainer.setContainer( this );
 	        postPlaceAction = ServerPlaceRecipe.placeRecipe( new ServerPlaceRecipe.CraftingMenuAccess< CraftingRecipe >() {
 	            @Override
 	            public void fillCraftSlotsStackedContents( StackedItemContents stackeditemcontents ) {
